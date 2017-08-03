@@ -8,6 +8,7 @@
 //"Send" and "Go" return button support
 //move the whole view on keyboard showing/hiding
 //text alignment setting for TextView/TextField
+//call onTextEditEnd on keyboard hiding
 
 UIViewController* unityViewController = nil;
 NSMutableDictionary*    dictEditBox = nil;
@@ -562,6 +563,14 @@ bool approxEqualFloat(float x, float y)
     [UIView animateWithDuration:duration animations:^{
         unityViewController.view.frame = CGRectMake(0, 0, unityViewController.view.frame.size.width, unityViewController.view.frame.size.height);
     }];
+
+    if ([editView isKindOfClass:[UITextView class]]){
+        UITextView* textView = (UITextView*) editView;
+        [self onTextEditEnd:textView.text];
+    } else if ([editView isKindOfClass:[UITextField class]]){
+        UITextField* textField = (UITextField*) editView;
+        [self onTextEditEnd:textField.text];
+    }
 }
 
 @end
