@@ -30,5 +30,5 @@
 +(void) finalizeEditBox;
 
 -(void) showKeyboard:(bool)isShow;
--(BOOL) IsFocused;
+-(BOOL) isFocused;
 @end

@@ -541,11 +541,16 @@ bool approxEqualFloat(float x, float y)
     }
 }
 
+-(BOOL) isFocused
+{
+    return editView.isFirstResponder;
+}
+
 -(void) tapAction:(id) sender
 {
     for (EditBox *eb in [editBoxDict allValues])
     {
-        if (eb.isFirstResponder)
+        if ([eb isFocused])
         {
             [eb showKeyboard:NO];
         }
