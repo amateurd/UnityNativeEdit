@@ -43,4 +43,10 @@ public class demo : MonoBehaviour {
 		Text txt = this.GetComponent<Text>();
 		txt.text = string.Format("[{0}] edit ended {1}", this.GetCurObjName(), str);
 	}
+
+	public void OnReturnPressed(NativeEditBox editBox)
+	{
+		//hide keyboard
+		editBox.SetFocus(false);
+	}
 }
