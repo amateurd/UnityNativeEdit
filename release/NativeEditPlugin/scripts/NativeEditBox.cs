@@ -104,7 +104,8 @@ public class NativeEditBox : PluginMsgReceiver
 		set
 		{
 			_inputField.text = value;
-			SetTextNative(value);
+			if(_hasNativeEditCreated)
+				SetTextNative(value);
 		}
 	}
 
@@ -177,8 +178,10 @@ public class NativeEditBox : PluginMsgReceiver
 
 	protected override void OnDestroy()
 	{
-		RemoveNative();
+		if(!_hasNativeEditCreated)
+			return;
 
+		RemoveNative();
 		base.OnDestroy();
 	}
 

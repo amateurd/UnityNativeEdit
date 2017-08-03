@@ -36,11 +36,7 @@ public class PluginMsgHandler : MonoBehaviour
 	private int	_curReceiverIndex = 0;
 	private Dictionary<int, PluginMsgReceiver> _receiverDict;
 
-	public delegate void ShowKeyboardDelegate(bool bKeyboardShow, int nKeyHeight);
-	public ShowKeyboardDelegate onShowKeyboard = null; 
-
-	private static string MSG_SHOW_KEYBOARD = "ShowKeyboard";
-	private static string DEFAULT_NAME = "NativeEditPluginHandler";
+	private const string DEFAULT_NAME = "NativeEditPluginHandler";
 
 	private bool isEditor
 	{
@@ -71,7 +67,6 @@ public class PluginMsgHandler : MonoBehaviour
 		if (_instance == null) 
 		{
 			GameObject handlerObject = new GameObject(DEFAULT_NAME);
-			handlerObject.transform.SetParent(receiver.gameObject.transform);
 			_instance = handlerObject.AddComponent<PluginMsgHandler>();
 		}
 		return _instance;
@@ -91,6 +86,9 @@ public class PluginMsgHandler : MonoBehaviour
 
 	public int RegisterAndGetReceiverId(PluginMsgReceiver receiver)
 	{
+		if(receiver == null)
+			throw new ArgumentNullException("MonoNativeEditBox: Receiver cannot be null while RegisterAndGetReceiverId!");
+
 		int index = _curReceiverIndex;
 		_curReceiverIndex++;
 
@@ -101,6 +99,10 @@ public class PluginMsgHandler : MonoBehaviour
 	public void RemoveReceiver(int nReceiverId)
 	{
 		_receiverDict.Remove(nReceiverId);
+		if (_receiverDict.Count == 0)
+		{
+			Destroy(_instance.gameObject);
+		}
 	}
 	
 	public PluginMsgReceiver GetReceiver(int nSenderId)
@@ -116,27 +118,15 @@ public class PluginMsgHandler : MonoBehaviour
 
 		string msg = jsonMsg.GetString("msg");
 
-		if (msg.Equals(MSG_SHOW_KEYBOARD))
-		{
-			bool bShow = jsonMsg.GetBool("show");
-			int nKeyHeight = (int)( jsonMsg.GetFloat("keyheight") * (float) Screen.height);
-			if (onShowKeyboard != null) 
-			{
-				onShowKeyboard(bShow, nKeyHeight);
-			}
-		}
-		else
-		{
-			int nSenderId = jsonMsg.GetInt("senderId");
+		int nSenderId = jsonMsg.GetInt("senderId");
 
-			// In some cases the receiver might be already removed, for example if a button is pressed
-			// that will destoy the receiver while the input field is focused an end editing message
-			// will be sent from the plugin after the receiver is already destroyed on Unity side.
-			if (_receiverDict.ContainsKey(nSenderId))
-			{
-				PluginMsgReceiver receiver = GetReceiver(nSenderId);
-				receiver.OnPluginMsgDirect(jsonMsg);
-			}
+		// In some cases the receiver might be already removed, for example if a button is pressed
+		// that will destroy the receiver while the input field is focused an end editing message
+		// will be sent from the plugin after the receiver is already destroyed on Unity side.
+		if (_receiverDict.ContainsKey(nSenderId))
+		{
+			PluginMsgReceiver receiver = GetReceiver(nSenderId);
+			receiver.OnPluginMsgDirect(jsonMsg);
 		}
 	}
 	
