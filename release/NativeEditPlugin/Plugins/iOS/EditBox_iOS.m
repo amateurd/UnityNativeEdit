@@ -5,6 +5,8 @@
 /// UnityEditBox Plugin
 /// Written by bkmin 2014/11 Nureka Inc.
 
+//"Send" and "Go" return button support
+
 UIViewController* unityViewController = nil;
 NSMutableDictionary*    dictEditBox = nil;
 EditBoxHoldView*         viewPlugin = nil;
@@ -324,6 +326,14 @@ bool approxEqualFloat(float x, float y)
     else if ([returnKeyTypeString isEqualToString:@"Done"])
     {
         returnKeyType = UIReturnKeyDone;
+    }
+    else if ([returnKeyTypeString isEqualToString:@"Send"])
+    {
+        returnKeyType = UIReturnKeySend;
+    }
+    else if ([returnKeyTypeString isEqualToString:@"Go"])
+    {
+        returnKeyType = UIReturnKeyGo;
     }
     
     // Conversion for retina displays

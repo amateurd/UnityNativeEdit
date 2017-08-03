@@ -57,7 +57,9 @@ public class NativeEditBox : PluginMsgReceiver
 	{
 		Default,
 		Next,
-		Done
+		Done,
+		Send,
+		Go
 	}
 
 	public bool withDoneButton = true;
@@ -336,11 +338,15 @@ public class NativeEditBox : PluginMsgReceiver
 			case ReturnKeyType.Next:
 				jsonMsg["return_key_type"] = "Next";
 				break;
-
 			case ReturnKeyType.Done:
 				jsonMsg["return_key_type"] = "Done";
 				break;
-
+			case ReturnKeyType.Send:
+				jsonMsg["return_key_type"] = "Send";
+				break;
+			case ReturnKeyType.Go:
+				jsonMsg["return_key_type"] = "Go";
+				break;
 			default:
 				jsonMsg["return_key_type"] = "Default";
 				break;
