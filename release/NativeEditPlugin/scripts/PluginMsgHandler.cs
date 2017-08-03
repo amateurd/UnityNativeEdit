@@ -47,7 +47,6 @@ public class PluginMsgHandler : MonoBehaviour {
 
 	private static string MSG_SHOW_KEYBOARD = "ShowKeyboard";
 	private static string DEFAULT_NAME = "NativeEditPluginHandler";
-	private static bool   ENABLE_WRITE_LOG = false;
 	private static GameObject instance;
 
 	private bool IsEditor {
@@ -86,13 +85,6 @@ public class PluginMsgHandler : MonoBehaviour {
 		int tempRandom = (int) UnityEngine.Random.Range(0, 10000.0f);
 		this.name = DEFAULT_NAME + tempRandom.ToString();
 
-		if (ENABLE_WRITE_LOG)
-		{
-			string fileName = Application.persistentDataPath + "/unity_app.log";
-			fileWriter = File.CreateText(fileName);
-			fileWriter.WriteLine("[LogWriter] Initialized");
-			Debug.Log(string.Format("log location {0}", fileName));
-		}
 		inst = this;
 		this.InitializeHandler();
 	}
