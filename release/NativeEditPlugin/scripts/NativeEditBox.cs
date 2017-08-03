@@ -182,12 +182,12 @@ public class NativeEditBox : PluginMsgReceiver
 		base.OnDestroy();
 	}
 
-	private void OnApplicationFocus(bool hasFocus)
+	private void OnApplicationPause(bool pause)
 	{
-		if (!_hasNativeEditCreated || !this.visible)
+		if (!_hasNativeEditCreated)
 			return;
 
-		this.SetVisible(hasFocus);
+		this.SetVisible(!pause);
 	}
 
 	private IEnumerator InitializeOnNextFrame()
