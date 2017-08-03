@@ -86,7 +86,7 @@ public class PluginMsgHandler : MonoBehaviour
 
 	public int RegisterAndGetReceiverId(PluginMsgReceiver receiver)
 	{
-		if(receiver == null)
+		if (receiver == null)
 			throw new ArgumentNullException("MonoNativeEditBox: Receiver cannot be null while RegisterAndGetReceiverId!");
 
 		int index = _curReceiverIndex;
@@ -140,7 +140,8 @@ public class PluginMsgHandler : MonoBehaviour
 
 	public void InitializeHandler()
 	{		
-		if (!isEditor) _iOS_InitPluginMsgHandler(this.name);
+		if (!isEditor)
+			_iOS_InitPluginMsgHandler(this.name);
 	}
 	
 	public void FinalizeHandler()

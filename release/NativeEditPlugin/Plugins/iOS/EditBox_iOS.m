@@ -531,7 +531,7 @@ bool approxEqualFloat(float x, float y)
         tapRecognizer = nil;
     }
 
-    //call onTextEditend
+    //call onTextEditEnd
     if ([editView isKindOfClass:[UITextView class]]){
         UITextView* textView = (UITextView*) editView;
         [self onTextEditEnd:textView.text];

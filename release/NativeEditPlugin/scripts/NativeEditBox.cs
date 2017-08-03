@@ -178,7 +178,7 @@ public class NativeEditBox : PluginMsgReceiver
 
 	protected override void OnDestroy()
 	{
-		if(!_hasNativeEditCreated)
+		if (!_hasNativeEditCreated)
 			return;
 
 		RemoveNative();
@@ -215,7 +215,7 @@ public class NativeEditBox : PluginMsgReceiver
 
 		//Plugin has to update rect continually otherwise we cannot see characters inputted just now 
 		_fakeTimer += Time.deltaTime;
-		if (_fakeTimer >= updateDeltaTime && this._inputField != null && _hasNativeEditCreated)
+		if (_fakeTimer >= updateDeltaTime && this._inputField != null && _hasNativeEditCreated && this.visible)
 		{
 			SetRectNative(this._textComponent.rectTransform);
 			_fakeTimer = 0f;
@@ -242,7 +242,7 @@ public class NativeEditBox : PluginMsgReceiver
 		mConfig.align = _textComponent.alignment.ToString();
 		mConfig.contentType = _inputField.contentType.ToString();
 		mConfig.backColor = new Color(1.0f, 1.0f, 1.0f, 0.0f);
-		mConfig.multiline = (_inputField.lineType == InputField.LineType.SingleLine) ? false : true;
+		mConfig.multiline = _inputField.lineType != InputField.LineType.SingleLine;
 	}
 
 	private void onTextChange(string newText)
@@ -361,6 +361,7 @@ public class NativeEditBox : PluginMsgReceiver
 		JsonObject jsonRet = this.SendPluginMsg(jsonMsg);
 		_hasNativeEditCreated = !this.CheckErrorJsonRet(jsonRet);
 
+		this.visible = _visibleOnCreate;
 		if (!_visibleOnCreate)
 			SetVisible(false);
 
