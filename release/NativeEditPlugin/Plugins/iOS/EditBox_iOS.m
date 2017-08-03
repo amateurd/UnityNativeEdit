@@ -6,6 +6,7 @@
 /// Written by bkmin 2014/11 Nureka Inc.
 
 //"Send" and "Go" return button support
+//move the whole view on keyboard showing/hiding
 
 UIViewController* unityViewController = nil;
 NSMutableDictionary*    dictEditBox = nil;
@@ -547,23 +548,30 @@ bool approxEqualFloat(float x, float y)
 {
     if (![editView isFirstResponder]) return;
     
-    NSDictionary* keyboardInfo = [notification userInfo];
-    NSValue* keyboardFrameBegin = [keyboardInfo valueForKey:UIKeyboardFrameBeginUserInfoKey];
-    rectKeyboardFrame = [keyboardFrameBegin CGRectValue];
-
+    //get keyboard height
+    CGFloat kbHeight = [[notification.userInfo objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue].size.height;
+    //calculate the distance from the top of keyboard to the bottom of TextView/TextField
+    CGFloat offset = (editView.frame.origin.y + editView.frame.size.height) - (unityViewController.view.frame.size.height - kbHeight);
+    //get the duration of keyboard showing animation
+    double duration = [[notification.userInfo objectForKey:UIKeyboardAnimationDurationUserInfoKey] doubleValue];
+    //move the whole view
+    if (offset > 0){
+        [UIView animateWithDuration:duration animations:^{
+            unityViewController.view.frame = CGRectMake(0, -offset, unityViewController.view.frame.size.width, unityViewController.view.frame.size.height);
+        }];
+    }
 }
 
 -(void) keyboardWillHide:(NSNotification*)notification
 {
     if (![editView isFirstResponder]) return;
 
+    //get the duration of keyboard hiding animation
+    double duration = [[notification.userInfo objectForKey:UIKeyboardAnimationDurationUserInfoKey] doubleValue];
+    //move the whole view
+    [UIView animateWithDuration:duration animations:^{
+        unityViewController.view.frame = CGRectMake(0, 0, unityViewController.view.frame.size.width, unityViewController.view.frame.size.height);
+    }];
 }
-
--(float) getKeyboardheight
-{
-    float height = rectKeyboardFrame.size.height / viewController.view.bounds.size.height;
-    return height;
-}
-
 
 @end
