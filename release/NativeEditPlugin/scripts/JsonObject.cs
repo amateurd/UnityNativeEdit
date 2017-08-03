@@ -1,8 +1,6 @@
-﻿using UnityEngine;
-using System.Collections;
 using System.Collections.Generic;
-using System.Text;
 using System;
+using MiniJSON_Min;
 
 /*
  * Copyright (c) 2015 Kyungmin Bang
@@ -32,38 +30,42 @@ using System;
 ///  JsonObject provide safe and type-compatible wrapper to access Json Element
 /// Safe means, even if a certain Json doesn't contain 'key', it doesn't crash.
 /// </summary>
-public class JsonObject : UnityEngine.Object {
+public class JsonObject : UnityEngine.Object
+{
 	/// <summary>
 	/// Supported object type : double, bool, string, List, Array!
 	/// </summary>
-	public Dictionary<string, System.Object> 	m_dict;
+	public Dictionary<string, object> objectDict;
 
 	public JsonObject()
 	{
-		m_dict = new Dictionary<string, System.Object>();
+		objectDict = new Dictionary<string, object>();
 	}
 
 	public JsonObject(string strJson)
 	{
-		m_dict = MiniJSON_Min.Json.Deserialize(strJson) as Dictionary<string,object>;
-	}	
-	
-	public JsonObject(Dictionary<string, System.Object> dict)
-	{
-		m_dict = dict;
+		objectDict = Json.Deserialize(strJson) as Dictionary<string, object>;
 	}
-	
-	public System.Object this[string key]
+
+	public JsonObject(Dictionary<string, object> dict)
 	{
-		get { return m_dict[key]; }
-		set { m_dict[key] = value; }
+		objectDict = dict;
 	}
-	
-	public string getCmd() { return (string) m_dict["cmd"]; }
-	
+
+	public object this[string key]
+	{
+		get { return objectDict[key]; }
+		set { objectDict[key] = value; }
+	}
+
+	public string getCmd()
+	{
+		return (string) objectDict["cmd"];
+	}
+
 	public string Serialize()
 	{
-		string strData = MiniJSON_Min.Json.Serialize(m_dict);
+		var strData = Json.Serialize(objectDict);
 		return strData;
 	}
 
@@ -71,84 +73,75 @@ public class JsonObject : UnityEngine.Object {
 
 	private object GetDictValue(string key)
 	{
-		System.Object obj;
-		if (m_dict.TryGetValue(key, out obj)) 
-		{
-			return ((obj != null) ? obj : "");
-		}
+		object obj;
+		if (objectDict.TryGetValue(key, out obj))
+			return obj ?? "";
 		return "";
 	}
 
-	public bool keyExist(string key)
+	public bool KeyExist(string key)
 	{
-		System.Object obj;
-		if (m_dict.TryGetValue(key, out obj)) 
-		{
+		object obj;
+		if (objectDict.TryGetValue(key, out obj))
 			return true;
-		}
 		return false;
 	}
-	
+
 	public Dictionary<string, object> GetJsonDict(string key)
 	{
-		System.Object obj;
-		if (m_dict.TryGetValue(key, out obj)) return  (Dictionary<string, object>) obj;
+		object obj;
+		if (objectDict.TryGetValue(key, out obj))
+			return (Dictionary<string, object>) obj;
 		return new Dictionary<string, object>();
 	}
 
 	public JsonObject GetJsonObject(string key)
 	{
-		Dictionary<string, object> dict = this.GetJsonDict(key);
+		var dict = GetJsonDict(key);
 		return new JsonObject(dict);
 	}
-	
+
 	public bool GetBool(string key)
 	{
 		bool val;
-		if (bool.TryParse(this.GetDictValue(key).ToString(), out val)) return val;
+		if (bool.TryParse(GetDictValue(key).ToString(), out val)) return val;
 		return false;
 	}
-	
+
 	public int GetInt(string key)
 	{
 		int val;
-		if (int.TryParse(this.GetDictValue(key).ToString(), out val)) return val;
+		if (int.TryParse(GetDictValue(key).ToString(), out val)) return val;
 		return 0;
 	}
-	
+
 	public float GetFloat(string key)
 	{
 		float val;
-		if (float.TryParse(this.GetDictValue(key).ToString(), out val)) return val;
+		if (float.TryParse(GetDictValue(key).ToString(), out val)) return val;
 		return 0.0f;
 	}
-	
+
 	public string GetString(string key)
 	{
-		return (string) this.GetDictValue(key).ToString();
+		return GetDictValue(key).ToString();
 	}
-	
-	public object GetEnum(System.Type type, string key)
+
+	public object GetEnum(Type type, string key)
 	{
-		string obj = (string) this.GetDictValue(key);
+		var obj = (string) GetDictValue(key);
 		if (obj.Length > 0)
-		{
-			return System.Enum.Parse(type, obj);
-		}
+			return Enum.Parse(type, obj);
 		return 0;
 	}
 	
 	public List<JsonObject> GetListJsonObject(string key)
 	{
-		System.Object obj;
-		List<JsonObject> retList = new List<JsonObject>();
-		if (m_dict.TryGetValue(key, out obj)) 
-		{
-			foreach(object elem in (List<object>) obj)
-			{
-				retList.Add(new JsonObject( (Dictionary<string, System.Object>) elem));
-			}
-		}
+		object obj;
+		var retList = new List<JsonObject>();
+		if (objectDict.TryGetValue(key, out obj))
+			foreach (var elem in (List<object>) obj)
+				retList.Add(new JsonObject((Dictionary<string, object>) elem));
 		return retList;
 	}
 }

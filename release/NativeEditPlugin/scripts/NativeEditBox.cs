@@ -32,7 +32,6 @@
 
 
 using UnityEngine;
-using UnityEngine.Events;
 using System;
 using System.Collections;
 using UnityEngine.UI;
@@ -68,11 +67,11 @@ public class NativeEditBox : PluginMsgReceiver
 
 	public bool updateRectEveryFrame;
 	public bool useInputFieldFont;
-	public UnityEngine.Events.UnityEvent OnReturnPressed;
+	public UnityEngine.Events.UnityEvent onReturnPressed;
 
-	private bool bNativeEditCreated = false;
+	private bool hasNativeEditCreated = false;
 
-	private InputField	objUnityInput;
+	private InputField objUnityInput;
 	private Text objUnityText;
 	private bool focusOnCreate;
 	private bool visibleOnCreate = true;
@@ -160,13 +159,13 @@ public class NativeEditBox : PluginMsgReceiver
 
 	private void OnEnable()
 	{
-		if (bNativeEditCreated)
+		if (hasNativeEditCreated)
 			this.SetVisible(true);
 	}
 
 	private void OnDisable()
 	{
-		if (bNativeEditCreated)
+		if (hasNativeEditCreated)
 			this.SetVisible(false);
 	}
 
@@ -179,7 +178,7 @@ public class NativeEditBox : PluginMsgReceiver
 
 	private void OnApplicationFocus(bool hasFocus)
 	{
-		if (!bNativeEditCreated || !this.Visible)
+		if (!hasNativeEditCreated || !this.Visible)
 			return;
 
 		this.SetVisible(hasFocus);
@@ -206,7 +205,7 @@ public class NativeEditBox : PluginMsgReceiver
 		this.UpdateForceKeyeventForAndroid();
 #endif
 
-		if (updateRectEveryFrame && this.objUnityInput != null && bNativeEditCreated)
+		if (updateRectEveryFrame && this.objUnityInput != null && hasNativeEditCreated)
 		{
 			SetRectNative(this.objUnityText.rectTransform);
 		}
@@ -278,8 +277,8 @@ public class NativeEditBox : PluginMsgReceiver
 		{
 			if (returnPressed != null)
 				returnPressed();
-			if (OnReturnPressed != null)
-				OnReturnPressed.Invoke();
+			if (onReturnPressed != null)
+				onReturnPressed.Invoke();
 		}
 	}
 
@@ -344,7 +343,7 @@ public class NativeEditBox : PluginMsgReceiver
 		}
 
 		JsonObject jsonRet = this.SendPluginMsg(jsonMsg);
-		bNativeEditCreated = !this.CheckErrorJsonRet(jsonRet);
+		hasNativeEditCreated = !this.CheckErrorJsonRet(jsonRet);
 
 		if (!visibleOnCreate)
 			SetVisible(false);
@@ -390,7 +389,7 @@ public class NativeEditBox : PluginMsgReceiver
 	public void SetFocus(bool bFocus)
 	{
 #if (UNITY_IOS || UNITY_ANDROID) && !UNITY_EDITOR
-		if (!bNativeEditCreated)
+		if (!hasNativeEditCreated)
 		{
 			focusOnCreate = bFocus;
 			return;
@@ -417,7 +416,7 @@ public class NativeEditBox : PluginMsgReceiver
 
 	public void SetVisible(bool bVisible)
 	{
-		if (!bNativeEditCreated)
+		if (!hasNativeEditCreated)
 		{
 			visibleOnCreate = bVisible;
 			return;

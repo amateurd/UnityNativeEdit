@@ -34,11 +34,11 @@ public class PluginMsgHandler : MonoBehaviour {
 	public 	static PluginMsgHandler getInst() {		return inst; }
 
 	#if UNITY_IPHONE
-	private static bool sPluginInitialized = false;
+	private static bool hasPluginInitialized = false;
 	#endif
 
-	private int	snCurReceiverIdx = 0;
-	private Dictionary<int, PluginMsgReceiver>		m_dictReceiver = new Dictionary<int, PluginMsgReceiver>();
+	private int	curReceiverIndex = 0;
+	private Dictionary<int, PluginMsgReceiver> receiverDict = new Dictionary<int, PluginMsgReceiver>();
 	
 	private static StreamWriter fileWriter = null;
 
@@ -99,16 +99,16 @@ public class PluginMsgHandler : MonoBehaviour {
 
 	public int RegisterAndGetReceiverId(PluginMsgReceiver receiver)
 	{
-		int index = snCurReceiverIdx;
-		snCurReceiverIdx++;
+		int index = curReceiverIndex;
+		curReceiverIndex++;
 
-		m_dictReceiver[index] = receiver;
+		receiverDict[index] = receiver;
 		return index;
 	}
 
 	public void RemoveReceiver(int nReceiverId)
 	{
-		m_dictReceiver.Remove(nReceiverId);
+		receiverDict.Remove(nReceiverId);
 	}
 
 	public void FileLog(string strLog, string strTag = "NativeEditBoxLog")
@@ -135,7 +135,7 @@ public class PluginMsgHandler : MonoBehaviour {
 	}
 	public PluginMsgReceiver GetReceiver(int nSenderId)
 	{
-		return m_dictReceiver[nSenderId];
+		return receiverDict[nSenderId];
 	}
 	
 	private void OnMsgFromPlugin(string jsonPluginMsg)
@@ -163,7 +163,7 @@ public class PluginMsgHandler : MonoBehaviour {
 			// In some cases the receiver might be already removed, for example if a button is pressed
 			// that will destoy the receiver while the input field is focused an end editing message
 			// will be sent from the plugin after the receiver is already destroyed on Unity side.
-			if (m_dictReceiver.ContainsKey(nSenderId))
+			if (receiverDict.ContainsKey(nSenderId))
 			{
 				PluginMsgReceiver receiver = PluginMsgHandler.getInst().GetReceiver(nSenderId);
 				receiver.OnPluginMsgDirect(jsonMsg);
@@ -181,10 +181,10 @@ public class PluginMsgHandler : MonoBehaviour {
 
 	public void InitializeHandler()
 	{		
-		if (IsEditor || sPluginInitialized) return;
+		if (IsEditor || hasPluginInitialized) return;
 
 		_iOS_InitPluginMsgHandler(this.name);
-		sPluginInitialized = true;
+		hasPluginInitialized = true;
 	}
 	
 	public void FinalizeHandler()
