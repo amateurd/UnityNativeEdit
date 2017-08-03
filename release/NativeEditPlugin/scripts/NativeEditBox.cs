@@ -64,11 +64,10 @@ public class NativeEditBox : PluginMsgReceiver
 
 	public bool withDoneButton = true;
 	public ReturnKeyType returnKeyType;
+	public bool useInputFieldFont;
+	public float updateDeltaTime = 0.25f;
 
 	public event Action returnPressed;
-
-	public bool updateRectEveryFrame;
-	public bool useInputFieldFont;
 	public UnityEngine.Events.UnityEvent onReturnPressed;
 
 	private bool _hasNativeEditCreated = false;
@@ -77,6 +76,7 @@ public class NativeEditBox : PluginMsgReceiver
 	private Text _textComponent;
 	private bool _focusOnCreate;
 	private bool _visibleOnCreate = true;
+	private float _fakeTimer = 0f;
 
 	private const string MSG_CREATE = "CreateEdit";
 	private const string MSG_REMOVE = "RemoveEdit";
@@ -209,12 +209,15 @@ public class NativeEditBox : PluginMsgReceiver
 	{
 #if UNITY_ANDROID && !UNITY_EDITOR
 		this.UpdateForceKeyeventForAndroid();
-#endif
 
-		if (updateRectEveryFrame && this._inputField != null && _hasNativeEditCreated)
+		//Plugin has to update rect continually otherwise we cannot see characters inputted just now 
+		_fakeTimer += Time.deltaTime;
+		if (_fakeTimer >= updateDeltaTime && this._inputField != null && _hasNativeEditCreated)
 		{
 			SetRectNative(this._textComponent.rectTransform);
+			_fakeTimer = 0f;
 		}
+#endif
 	}
 
 	private void PrepareNativeEdit()
