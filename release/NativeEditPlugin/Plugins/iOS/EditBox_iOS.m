@@ -10,6 +10,7 @@
 //text alignment setting for TextView/TextField
 //call onTextEditEnd on keyboard hiding
 //fix bug "cannot use multi-touch" 
+//UITapGestureRecognizer fixed for stripe zone on the left cannot respond on iPhone with 3DTouch
 
 UIViewController* unityViewController = nil;
 NSMutableDictionary* editBoxDict = nil;
@@ -78,11 +79,6 @@ bool approxEqualFloat(float x, float y)
     editBoxDict = nil;
 }
 
--(BOOL) IsFocused
-{
-    return editView.isFirstResponder;
-}
-
 -(void) sendJsonToUnity:(JsonObject*) json
 {
     [json setInt:@"senderId" value:tag];
@@ -132,11 +128,6 @@ bool approxEqualFloat(float x, float y)
     if(self = [super init]) {
         viewController = theViewController;
         tag = _tag;
-
-        if (tapRecognizer == nil){
-            tapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapAction:)];
-            [viewController.view addGestureRecognizer:tapRecognizer];
-        }
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillShow:) name:UIKeyboardWillShowNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillHide:) name:UIKeyboardWillHideNotification object:nil];
     }
@@ -434,11 +425,6 @@ bool approxEqualFloat(float x, float y)
     return @"";
 }
 
--(bool) isFocused
-{
-    return editView.isFirstResponder;
-}
-
 -(void) showKeyboard:(bool)isShow
 {
     [viewController.view endEditing:(isShow ? YES : NO)];
@@ -520,6 +506,12 @@ bool approxEqualFloat(float x, float y)
             unityViewController.view.frame = CGRectMake(0, -offset, unityViewController.view.frame.size.width, unityViewController.view.frame.size.height);
         }];
     }
+
+    //add tapRecognizer on keyboard showing
+    if (tapRecognizer == nil){
+        tapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapAction:)];
+        [unityViewController.view addGestureRecognizer:tapRecognizer];
+    }
 }
 
 -(void) keyboardWillHide:(NSNotification*)notification
@@ -532,6 +524,12 @@ bool approxEqualFloat(float x, float y)
     [UIView animateWithDuration:duration animations:^{
         unityViewController.view.frame = CGRectMake(0, 0, unityViewController.view.frame.size.width, unityViewController.view.frame.size.height);
     }];
+
+    //remove tapRecognizer on keyboard hiding
+    if (tapRecognizer != nil){
+        [unityViewController.view removeGestureRecognizer:tapRecognizer];
+        tapRecognizer = nil;
+    }
 
     //call onTextEditend
     if ([editView isKindOfClass:[UITextView class]]){
@@ -547,7 +545,7 @@ bool approxEqualFloat(float x, float y)
 {
     for (EditBox *eb in [editBoxDict allValues])
     {
-        if ([eb IsFocused])
+        if (eb.isFirstResponder)
         {
             [eb showKeyboard:NO];
         }
