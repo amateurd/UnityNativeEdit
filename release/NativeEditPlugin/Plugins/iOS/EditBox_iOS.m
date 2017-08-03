@@ -7,6 +7,7 @@
 
 //"Send" and "Go" return button support
 //move the whole view on keyboard showing/hiding
+//text alignment setting for TextView/TextField
 
 UIViewController* unityViewController = nil;
 NSMutableDictionary*    dictEditBox = nil;
@@ -254,53 +255,42 @@ bool approxEqualFloat(float x, float y)
         keyType = UIKeyboardTypePhonePad;
     }
     
-    UIControlContentHorizontalAlignment halign = UIControlContentHorizontalAlignmentLeft;
-    UIControlContentVerticalAlignment valign = UIControlContentVerticalAlignmentCenter;
-    
+    NSTextAlignment textAlignment;
     if ([alignment isEqualToString:@"UpperLeft"])
     {
-        valign = UIControlContentVerticalAlignmentTop;
-        halign = UIControlContentHorizontalAlignmentLeft;
+        textAlignment = NSTextAlignmentLeft;
     }
     else if ([alignment isEqualToString:@"UpperCenter"])
     {
-        valign = UIControlContentVerticalAlignmentTop;
-        halign = UIControlContentHorizontalAlignmentCenter;
+        textAlignment = NSTextAlignmentCenter;
     }
     else if ([alignment isEqualToString:@"UpperRight"])
     {
-        valign = UIControlContentVerticalAlignmentTop;
-        halign = UIControlContentHorizontalAlignmentRight;
+        textAlignment = NSTextAlignmentRight;
     }
     else if ([alignment isEqualToString:@"MiddleLeft"])
     {
-        valign = UIControlContentVerticalAlignmentCenter;
-        halign = UIControlContentHorizontalAlignmentLeft;
+        textAlignment = NSTextAlignmentLeft;
     }
     else if ([alignment isEqualToString:@"MiddleCenter"])
     {
-        valign = UIControlContentVerticalAlignmentCenter;
-        halign = UIControlContentHorizontalAlignmentCenter;
+        textAlignment = NSTextAlignmentCenter;
     }
     else if ([alignment isEqualToString:@"MiddleRight"])
     {
-        valign = UIControlContentVerticalAlignmentCenter;
-        halign = UIControlContentHorizontalAlignmentRight;
+        textAlignment = NSTextAlignmentRight;
     }
     else if ([alignment isEqualToString:@"LowerLeft"])
     {
-        valign = UIControlContentVerticalAlignmentBottom;
-        halign = UIControlContentHorizontalAlignmentLeft;
+        textAlignment = NSTextAlignmentLeft;
     }
     else if ([alignment isEqualToString:@"LowerCenter"])
     {
-        valign = UIControlContentVerticalAlignmentBottom;
-        halign = UIControlContentHorizontalAlignmentCenter;
+        textAlignment = NSTextAlignmentCenter;
     }
     else if ([alignment isEqualToString:@"LowerRight"])
     {
-        valign = UIControlContentVerticalAlignmentBottom;
-        halign = UIControlContentHorizontalAlignmentRight;
+        textAlignment = NSTextAlignmentRight;
     }
    
     if (withDoneButton)
@@ -366,6 +356,7 @@ bool approxEqualFloat(float x, float y)
         textView.textColor = textColor;
         textView.backgroundColor = backgroundColor;
         textView.returnKeyType = returnKeyType;
+        textView.textAlignment = textAlignment;
         textView.autocorrectionType = autoCorr ? UITextAutocorrectionTypeYes : UITextAutocorrectionTypeNo;
         textView.contentInset = UIEdgeInsetsMake(0.0f, 0.0f, 0.0f, 0.0f);
         textView.placeholder = placeholder;
@@ -395,8 +386,7 @@ bool approxEqualFloat(float x, float y)
         textField.backgroundColor = backgroundColor;
         textField.returnKeyType = returnKeyType;
         textField.autocorrectionType = autoCorr ? UITextAutocorrectionTypeYes : UITextAutocorrectionTypeNo;
-        textField.contentVerticalAlignment = valign;
-        textField.contentHorizontalAlignment = halign;
+        textField.textAlignment = textAlignment;
         // Settings the placeholder like this is needed because otherwise it will not be visible
         textField.attributedPlaceholder = [[NSAttributedString alloc] initWithString:placeholder attributes:@{NSForegroundColorAttributeName: placeHolderColor}];
         textField.delegate = self;
