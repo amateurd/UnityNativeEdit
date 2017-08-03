@@ -26,20 +26,20 @@ using UnityEngine;
 public abstract class PluginMsgReceiver : MonoBehaviour
 {
 	private	int _receiverId;
-
+	
 	protected virtual void Start()
 	{
-		_receiverId = PluginMsgHandler.getInst().RegisterAndGetReceiverId(this);
+		_receiverId = PluginMsgHandler.GetInstanceForReceiver(this).RegisterAndGetReceiverId(this);
 	}
 
 	protected virtual void OnDestroy()
 	{
-		PluginMsgHandler.getInst().RemoveReceiver(_receiverId);
+		PluginMsgHandler.GetInstanceForReceiver(this).RemoveReceiver(_receiverId);
 	}
 
 	protected JsonObject SendPluginMsg(JsonObject jsonMsg)
 	{
-		return PluginMsgHandler.getInst().SendMsgToPlugin(_receiverId, jsonMsg);
+		return PluginMsgHandler.GetInstanceForReceiver(this).SendMsgToPlugin(_receiverId, jsonMsg);
 	}
 
 	public abstract void OnPluginMsgDirect(JsonObject jsonMsg);  

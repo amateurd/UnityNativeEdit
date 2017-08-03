@@ -29,28 +29,27 @@ using System;
 using System.IO;
 using AOT;
 
-public class PluginMsgHandler : MonoBehaviour {
-	private static PluginMsgHandler inst;
-	public 	static PluginMsgHandler getInst() {		return inst; }
+public class PluginMsgHandler : MonoBehaviour 
+{
+	private static PluginMsgHandler _instance = null;
 
 	#if UNITY_IPHONE
-	private static bool hasPluginInitialized = false;
+	private static bool _hasPluginInitialized = false;
 	#endif
 
-	private int	curReceiverIndex = 0;
-	private Dictionary<int, PluginMsgReceiver> receiverDict = new Dictionary<int, PluginMsgReceiver>();
-	
-	private static StreamWriter fileWriter = null;
+	private int	_curReceiverIndex = 0;
+	private Dictionary<int, PluginMsgReceiver> _receiverDict;
 
 	public delegate void ShowKeyboardDelegate(bool bKeyboardShow, int nKeyHeight);
-	public ShowKeyboardDelegate OnShowKeyboard = null; 
+	public ShowKeyboardDelegate onShowKeyboard = null; 
 
 	private static string MSG_SHOW_KEYBOARD = "ShowKeyboard";
 	private static string DEFAULT_NAME = "NativeEditPluginHandler";
-	private static GameObject instance;
 
-	private bool IsEditor {
-		get {
+	private bool isEditor
+	{
+		get 
+		{
 			#if UNITY_EDITOR
 			return true;
 			#else
@@ -59,8 +58,10 @@ public class PluginMsgHandler : MonoBehaviour {
 		}
 	}
 
-	private bool IsStandalone {
-		get {			
+	private bool isStandalone
+	{
+		get 
+		{			
 			#if UNITY_STANDALONE
 			return true;
 			#else
@@ -69,73 +70,46 @@ public class PluginMsgHandler : MonoBehaviour {
 		}
 	}
 
+	public static PluginMsgHandler GetInstanceForReceiver(PluginMsgReceiver receiver)
+	{
+		if (_instance == null) 
+		{
+			GameObject handlerObject = new GameObject(DEFAULT_NAME);
+			handlerObject.transform.SetParent(receiver.gameObject.transform);
+			_instance = handlerObject.AddComponent<PluginMsgHandler>();
+		}
+		return _instance;
+	}
 
 	void Awake()
 	{
-		// Don't destroy on load and make sure there is only one instance existing. Without this the
-		// events didn't seem to work after a scene reload.
-		if (instance != null)
-		{
-			Destroy(gameObject);
-			return;
-		}
-		instance = gameObject;
-		DontDestroyOnLoad(gameObject);
-
-		int tempRandom = (int) UnityEngine.Random.Range(0, 10000.0f);
-		this.name = DEFAULT_NAME + tempRandom.ToString();
-
-		inst = this;
+		this._receiverDict = new Dictionary<int, PluginMsgReceiver>();
 		this.InitializeHandler();
 	}
 
 	void OnDestory()
 	{
-		FileLog("Application closed");
-		if (fileWriter != null) fileWriter.Close();
-		fileWriter = null;
 		this.FinalizeHandler();
+		_instance = null;
 	}
 
 	public int RegisterAndGetReceiverId(PluginMsgReceiver receiver)
 	{
-		int index = curReceiverIndex;
-		curReceiverIndex++;
+		int index = _curReceiverIndex;
+		_curReceiverIndex++;
 
-		receiverDict[index] = receiver;
+		_receiverDict[index] = receiver;
 		return index;
 	}
 
 	public void RemoveReceiver(int nReceiverId)
 	{
-		receiverDict.Remove(nReceiverId);
+		_receiverDict.Remove(nReceiverId);
 	}
-
-	public void FileLog(string strLog, string strTag = "NativeEditBoxLog")
-	{
-		string strOut = string.Format("[!] {0} {1} [{2}]",strTag, strLog, DateTime.Now.ToLongTimeString());
-
-		if (fileWriter != null)
-		{
-			fileWriter.WriteLine(strOut);
-			fileWriter.Flush();
-		}
-		
-		Debug.Log(strOut);
-	}
-	public void FileLogError(string strLog)
-	{
-		string strOut = string.Format("[!ERROR!] {0} [{1}]", strLog, DateTime.Now.ToLongTimeString());
-		if (fileWriter != null)
-		{
-			fileWriter.WriteLine(strOut);
-			fileWriter.Flush();
-		}
-		Debug.Log(strOut);
-	}
+	
 	public PluginMsgReceiver GetReceiver(int nSenderId)
 	{
-		return receiverDict[nSenderId];
+		return _receiverDict[nSenderId];
 	}
 	
 	private void OnMsgFromPlugin(string jsonPluginMsg)
@@ -150,10 +124,9 @@ public class PluginMsgHandler : MonoBehaviour {
 		{
 			bool bShow = jsonMsg.GetBool("show");
 			int nKeyHeight = (int)( jsonMsg.GetFloat("keyheight") * (float) Screen.height);
-			//FileLog(string.Format("keyshow {0} height {1}", bShow, nKeyHeight));
-			if (OnShowKeyboard != null) 
+			if (onShowKeyboard != null) 
 			{
-				OnShowKeyboard(bShow, nKeyHeight);
+				onShowKeyboard(bShow, nKeyHeight);
 			}
 		}
 		else
@@ -163,9 +136,9 @@ public class PluginMsgHandler : MonoBehaviour {
 			// In some cases the receiver might be already removed, for example if a button is pressed
 			// that will destoy the receiver while the input field is focused an end editing message
 			// will be sent from the plugin after the receiver is already destroyed on Unity side.
-			if (receiverDict.ContainsKey(nSenderId))
+			if (_receiverDict.ContainsKey(nSenderId))
 			{
-				PluginMsgReceiver receiver = PluginMsgHandler.getInst().GetReceiver(nSenderId);
+				PluginMsgReceiver receiver = GetReceiver(nSenderId);
 				receiver.OnPluginMsgDirect(jsonMsg);
 			}
 		}
@@ -181,15 +154,15 @@ public class PluginMsgHandler : MonoBehaviour {
 
 	public void InitializeHandler()
 	{		
-		if (IsEditor || hasPluginInitialized) return;
+		if (isEditor || _hasPluginInitialized) return;
 
 		_iOS_InitPluginMsgHandler(this.name);
-		hasPluginInitialized = true;
+		_hasPluginInitialized = true;
 	}
 	
 	public void FinalizeHandler()
 	{
-		if (!IsEditor)
+		if (!isEditor)
 			_iOS_ClosePluginMsgHandler();
 		
 	}
@@ -199,7 +172,7 @@ public class PluginMsgHandler : MonoBehaviour {
 	private static AndroidJavaClass smAndroid;
 	public void InitializeHandler()
 	{	
-		if (IsEditor) return;
+		if (isEditor) return;
 
 		// Reinitialization was made possible on Android to be able to use as a workaround in an issue where the
 		// NativeEditBox text would be hidden after using Unity's Handheld.PlayFullScreenMovie().
@@ -210,7 +183,7 @@ public class PluginMsgHandler : MonoBehaviour {
 	
 	public void FinalizeHandler()
 	{	
-		if (!IsEditor)
+		if (!isEditor)
 			smAndroid.CallStatic("ClosePluginMsgHandler");
 	}
 
