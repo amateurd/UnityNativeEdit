@@ -13,35 +13,17 @@ public class demo : MonoBehaviour {
 	void Start () {
 		rectTrans = testNativeEdit.transform.Find("Text").GetComponent<RectTransform>();
 	}
-	
-	// Update is called once per frame
-	void Update () {
 
-	
-	}
-
-	private string GetCurObjName()
-	{
-		string strObjName = "";
-		GameObject objSel = EventSystem.current.currentSelectedGameObject;
-		if (objSel != null && objSel.transform.parent != null)
-		{
-			strObjName = objSel.transform.parent.name;
-		}
-
-		return strObjName;
-	}
-
-	public void OnEditValugChanged(string str)
+	public void OnEditValueChanged(string str)
 	{
 		Text txt = this.GetComponent<Text>();
-		txt.text = string.Format("[{0}] val changed {1}", this.GetCurObjName(), str);
+		txt.text = string.Format("val changed {0}", str);
 	}
 
 	public void OnEditEnded(string str)
 	{
 		Text txt = this.GetComponent<Text>();
-		txt.text = string.Format("[{0}] edit ended {1}", this.GetCurObjName(), str);
+		txt.text = string.Format("edit ended {0}", str);
 	}
 
 	public void OnReturnPressed(NativeEditBox editBox)
