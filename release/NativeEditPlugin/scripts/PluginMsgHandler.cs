@@ -33,10 +33,6 @@ public class PluginMsgHandler : MonoBehaviour
 {
 	private static PluginMsgHandler _instance = null;
 
-	#if UNITY_IPHONE
-	private static bool _hasPluginInitialized = false;
-	#endif
-
 	private int	_curReceiverIndex = 0;
 	private Dictionary<int, PluginMsgReceiver> _receiverDict;
 
@@ -87,7 +83,7 @@ public class PluginMsgHandler : MonoBehaviour
 		this.InitializeHandler();
 	}
 
-	void OnDestory()
+	void OnDestroy()
 	{
 		this.FinalizeHandler();
 		_instance = null;
@@ -154,10 +150,7 @@ public class PluginMsgHandler : MonoBehaviour
 
 	public void InitializeHandler()
 	{		
-		if (isEditor || _hasPluginInitialized) return;
-
-		_iOS_InitPluginMsgHandler(this.name);
-		_hasPluginInitialized = true;
+		if (!isEditor) _iOS_InitPluginMsgHandler(this.name);
 	}
 	
 	public void FinalizeHandler()
