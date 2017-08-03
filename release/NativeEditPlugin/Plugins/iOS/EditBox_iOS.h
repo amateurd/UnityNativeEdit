@@ -16,20 +16,10 @@
 #define MSG_TEXT_END_EDIT @"TextEndEdit"
 #define MSG_RETURN_PRESSED @"ReturnPressed"
 
-@interface EditBoxHoldView : UIView
-{
-
-}
-
--(id) initHoldView:(CGRect) frame;
-
-@end
-
 @interface EditBox : NSObject<UITextFieldDelegate, UITextViewDelegate>
 {
     UIView*     editView;
     UIViewController* viewController;
-    CGRect rectKeyboardFrame;
     UIToolbar* keyboardDoneButtonView;
     UIBarButtonItem* doneButton;
     int tag;

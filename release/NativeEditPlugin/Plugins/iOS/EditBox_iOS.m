@@ -9,10 +9,11 @@
 //move the whole view on keyboard showing/hiding
 //text alignment setting for TextView/TextField
 //call onTextEditEnd on keyboard hiding
+//fix bug "cannot use multi-touch" 
 
 UIViewController* unityViewController = nil;
-NSMutableDictionary*    dictEditBox = nil;
-EditBoxHoldView*         viewPlugin = nil;
+NSMutableDictionary* editBoxDict = nil;
+UITapGestureRecognizer* tapRecognizer = nil;
 
 char    g_unityName[64];
 int characterLimit;
@@ -22,45 +23,12 @@ bool approxEqualFloat(float x, float y)
     return fabs(x-y) < 0.001f;
 }
 
-@implementation EditBoxHoldView
-
--(id) initHoldView:(CGRect) frame
-{
-    if (self = [super initWithFrame:frame])
-    {
-        UITapGestureRecognizer *tap=[[UITapGestureRecognizer alloc] initWithTarget:self    action:@selector(tapAction:)];
-        [self addGestureRecognizer:tap];
-        self.userInteractionEnabled = YES;
-    }
-    return self;
-}
-
--(void) tapAction:(id) sender
-{
-    for (EditBox *eb in [dictEditBox allValues])
-    {
-        if ([eb IsFocused])
-        {
-            [eb showKeyboard:NO];
-        }
-    }
-}
-
-@end
-
-
 @implementation EditBox
 
 +(void) initializeEditBox:(UIViewController*) _unityViewController  unityName:(const char*) unityName
 {
     unityViewController = _unityViewController;
-    dictEditBox = [[NSMutableDictionary alloc] init];
-    
-    CGRect frameView = unityViewController.view.frame;
-    frameView.origin = CGPointMake(0.0f, 0.0f);
-    viewPlugin = [[EditBoxHoldView alloc] initHoldView:frameView];
-    [unityViewController.view addSubview:viewPlugin];
-    
+    editBoxDict = [[NSMutableDictionary alloc] init];
     strcpy(g_unityName, unityName);
 }
 
@@ -80,17 +48,17 @@ bool approxEqualFloat(float x, float y)
     NSString* msg = [jsonMsg getString:@"msg"];
     if ([msg isEqualToString:MSG_CREATE])
     {
-        EditBox* nb = [[EditBox alloc] initWithViewController:unityViewController _tag:nSenderId];
-        [nb create:jsonMsg];
-        [dictEditBox setObject:nb forKey:[NSNumber numberWithInt:nSenderId]];
+        EditBox* eb = [[EditBox alloc] initWithViewController:unityViewController _tag:nSenderId];
+        [eb create:jsonMsg];
+        [editBoxDict setObject:eb forKey:[NSNumber numberWithInt:nSenderId]];
         jsonRet = [EditBox makeJsonRet:NO error:@""];
     }
     else
     {
-        EditBox* b = [dictEditBox objectForKey:[NSNumber numberWithInt:nSenderId]];
-        if (b)
+        EditBox* eb = [editBoxDict objectForKey:[NSNumber numberWithInt:nSenderId]];
+        if (eb)
         {
-            jsonRet = [b processJsonMsg:msg json:jsonMsg];
+            jsonRet = [eb processJsonMsg:msg json:jsonMsg];
         }
         else
         {
@@ -102,12 +70,12 @@ bool approxEqualFloat(float x, float y)
 
 +(void) finalizeEditBox
 {
-    NSArray* objs = [dictEditBox allValues];
-    for (EditBox* b in objs)
+    NSArray* objs = [editBoxDict allValues];
+    for (EditBox* eb in objs)
     {
-        [b remove];
+        [eb remove];
     }
-    dictEditBox = nil;
+    editBoxDict = nil;
 }
 
 -(BOOL) IsFocused
@@ -164,6 +132,11 @@ bool approxEqualFloat(float x, float y)
     if(self = [super init]) {
         viewController = theViewController;
         tag = _tag;
+
+        if (tapRecognizer == nil){
+            tapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapAction:)];
+            [viewController.view addGestureRecognizer:tapRecognizer];
+        }
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillShow:) name:UIKeyboardWillShowNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillHide:) name:UIKeyboardWillHideNotification object:nil];
     }
@@ -177,8 +150,8 @@ bool approxEqualFloat(float x, float y)
     float width = [json getFloat:@"width"] * viewController.view.bounds.size.width;
     float height = [json getFloat:@"height"] * viewController.view.bounds.size.height;
     
-    x -= editView.superview.frame.origin.x;
-    y -= editView.superview.frame.origin.y;
+    //x -= editView.superview.frame.origin.x;
+    //y -= editView.superview.frame.origin.y;
     editView.frame = CGRectMake(x, y, width, height);
 }
 
@@ -369,10 +342,6 @@ bool approxEqualFloat(float x, float y)
         [textView setSecureTextEntry:password];
         if (keyboardDoneButtonView != nil) textView.inputAccessoryView = keyboardDoneButtonView;
         
-        
-        /// Todo
-        /// UITextView Alignment is not implemented
-        
         editView = textView;
     }
     else
@@ -400,7 +369,7 @@ bool approxEqualFloat(float x, float y)
         
         editView = textField;
     }
-    [viewPlugin addSubview:editView];
+    [unityViewController.view addSubview:editView];
 }
 
 -(void) setText:(JsonObject*)json
@@ -564,12 +533,24 @@ bool approxEqualFloat(float x, float y)
         unityViewController.view.frame = CGRectMake(0, 0, unityViewController.view.frame.size.width, unityViewController.view.frame.size.height);
     }];
 
+    //call onTextEditend
     if ([editView isKindOfClass:[UITextView class]]){
         UITextView* textView = (UITextView*) editView;
         [self onTextEditEnd:textView.text];
     } else if ([editView isKindOfClass:[UITextField class]]){
         UITextField* textField = (UITextField*) editView;
         [self onTextEditEnd:textField.text];
+    }
+}
+
+-(void) tapAction:(id) sender
+{
+    for (EditBox *eb in [editBoxDict allValues])
+    {
+        if ([eb IsFocused])
+        {
+            [eb showKeyboard:NO];
+        }
     }
 }
 
