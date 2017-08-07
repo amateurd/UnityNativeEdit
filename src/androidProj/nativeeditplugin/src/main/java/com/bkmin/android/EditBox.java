@@ -16,6 +16,7 @@ import android.util.SparseArray;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.KeyEvent;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
@@ -88,6 +89,17 @@ public class EditBox {
     private EditBox(RelativeLayout mainLayout) {
         layout = mainLayout;
         edit = null;
+
+        //Tap on the layout to clear focus of EditText
+        layout.setOnTouchListener(new View.OnTouchListener(){
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent){
+                layout.setFocusable(true);
+                layout.setFocusableInTouchMode(true);
+                layout.requestFocus();
+                return false;
+            }
+        });
     }
 
     private void showKeyboard(boolean isShow) {
