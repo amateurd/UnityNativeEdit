@@ -62,10 +62,11 @@ public class NativeEditBox : PluginMsgReceiver
 		Go
 	}
 
-	public bool withDoneButton = true;
-	public ReturnKeyType returnKeyType;
-	public bool useInputFieldFont;
 	public float updateDeltaTime = 0.25f;
+	public bool withDoneButton = true;
+	public bool useInputFieldFont;
+	public bool clearFocusOnReturnPressed;
+	public ReturnKeyType returnKeyType;
 
 	public event Action returnPressed;
 	public UnityEngine.Events.UnityEvent onReturnPressed;
@@ -291,6 +292,8 @@ public class NativeEditBox : PluginMsgReceiver
 				returnPressed();
 			if (onReturnPressed != null)
 				onReturnPressed.Invoke();
+			if (clearFocusOnReturnPressed)
+				SetFocus(false);
 		}
 	}
 
