@@ -450,7 +450,7 @@ public class EditBox {
 
             if (cursorPos > newText.length()) {
                 //Text was deleted, so cursor position is after the end of the text, let's put it at the last position
-                cursorPos = newText.length() + 1;
+                cursorPos = newText.length();
             }
             edit.setSelection(cursorPos);
         }
