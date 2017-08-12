@@ -374,6 +374,11 @@ public class NativeEditBox : PluginMsgReceiver
 
 	private void SetTextNative(string newText)
 	{
+		if (string.IsNullOrEmpty(newText))
+		{
+			newText = string.Empty;
+		}
+		
 		JsonObject jsonMsg = new JsonObject();
 
 		jsonMsg["msg"] = MSG_SET_TEXT;
