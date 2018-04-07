@@ -19,7 +19,7 @@ This means you don't need a separate 'Unity' Input box and you can use all nativ
 
     If another plugin you're using is overriding the `UnityPlayerActivity` and the input field appears invisible you need to modify the overriding `UnityPlayerActivity` so that it doesn't appear on top of native views, see https://github.com/YousicianGit/UnityNativeEdit/issues/34.
     
-    You can refer to sample `AndroidManifest.xml` in `/Plugings/Android` folder.
+    You can refer to sample `AndroidManifest.xml` in `Plugins/Android` folder.
  
 3. Attach ```NativeEditBox``` script to your UnityUI ```InputField```object.
 4. Build and run on your android or ios device!
@@ -49,7 +49,7 @@ Unity 2017版本尚未测试。
     <activity android:name="com.bkmin.android.UnityPlayerNotOnTopActivity"
        android:label="@string/app_name">
     ```
-    注：如果你使用多个Android插件的话，在一个项目中可能会有多个AndroidManifest.xml文件，Unity会在构建的时候将它们合并为一个文件。在文件结构中离`Plugins/Android`这一层最近的AndroidManifest中的`activity`定义看起来会覆盖其他AndroidManifest中的对应定义，所以请确保你修改的是正确的文件。可以参考demo`/Plugings/Android`文件夹中的`AndroidManifest.xml`。
+    注：如果你使用多个Android插件的话，在一个项目中可能会有多个AndroidManifest.xml文件，Unity会在构建的时候将它们合并为一个文件。在文件结构中离`Plugins/Android`这一层最近的AndroidManifest中的`activity`定义看起来会覆盖其他AndroidManifest中的对应定义，所以请确保你修改的是正确的文件。可以参考demo中`Plugins/Android`文件夹里的`AndroidManifest.xml`。
 
     如果其他Android插件需要修改该`activity`定义同时修改后输入框不可用的话，参见https://github.com/YousicianGit/UnityNativeEdit/issues/34 。
 3. 在你的InputField对象上添加`NativeEditBox`脚本组件。
